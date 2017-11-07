@@ -27,10 +27,10 @@ def play_ar(intrinsic, extrinsic, imgs, model):
         
         # TODO: Project the model with proj.
         # Hint: T is the extrinsic matrix for the current image.
-
+        m = proj(intrinsic, T, v)
 
         # TODO: Draw the model with plothom or plotedges.
-
+        plothom(m)
 
 
         # Plot the image.
@@ -137,6 +137,10 @@ def practica2():
     FOV_d = 2 * np.arctan2(np.sqrt(320 * 320 + 240 * 240) / 2, intrinsics[0][0]) # Se usa fx dado que es igual que fy
     print("FOV diagonal de la camara left (grados) = {}".format(FOV_d * 180 / np.pi))
 
+    # Ejercicio 7,8,9
+    from models import teapot
+    play_ar(intrinsics, extrinsics, images, teapot)
+
 # Carga las imagenes y devuelve una lista con arrays numpy
 # parametro: lista de nombres de las imagenes
 def load_images(fileNames):
@@ -157,6 +161,16 @@ def get_chessboard_points(chessboard_shape, dx, dy):
     coordinates = np.array(coordinates).reshape((N, 3))
 
     return coordinates
+
+def proj(K, T, verts):
+    # Multiplicamos matrices. Se le anade una columna a K de ceros para hacerla 3x4
+    P = np.matmul(np.hstack((K, np.array([0, 0, 0]).reshape(1, 3).transpose())), T)
+    return np.matmul(P, verts)
+
+def plothom(points):
+    # Transformamos de coordenadas homogeneas a castesianas y mostramos los puntos
+    p = points / points[2,:]
+    return ppl.plot(p[0,:], p[1,:], 'bo')
 
 
 if __name__ == "__main__":
