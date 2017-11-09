@@ -142,7 +142,7 @@ def practica2():
 
     # Ejercicio 7,8,9
     from models import teapot
-#    play_ar(intrinsics, extrinsics, images, teapot)
+    play_ar(intrinsics, extrinsics, images, teapot)
 
     # Ejercicio 10
     T = np.zeros((4, 4))
