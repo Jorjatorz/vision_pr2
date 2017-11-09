@@ -158,6 +158,22 @@ def practica2():
     # extrinsics empieza a indexar en la posicion 1, tiene None en la posicion 0
     extrinsics2 = [np.matmul(e, T) if e is not None else None for e in extrinsics]
     play_ar(intrinsics, extrinsics2, images, teapot)
+    
+    # Ejercicio 11
+    print("Obteniendo nombres de las imagenes en la carpeta right")
+    fileNames = glob.glob("./right/*")
+    fileNames = misc.sort_nicely(fileNames)
+    print("Cargando imagenes de la carpeta right por orden alfabetico")
+    images_right = load_images(fileNames)
+    print("Detectando esquinas del tablero en las imagenes")
+    boardCorners_right = [cv2.findChessboardCorners(image, (8, 6)) for image in
+                    images_right]  # Buscamos los bordes en todas las imagenes y los almacenamos en una lista
+    print("Obeteniendo coordenadas en el mundo de las esquinas")
+    cornersRealPositions_right = get_chessboard_points((8, 6), 30, 30)
+    print("Calibrando camara right...")
+    intrinsics_right, extrinsics_right, dist_coeffs_right = calibrate(boardCorners_right, cornersRealPositions_right, (320, 240))
+    print("Guardando resultados de la calibracion en el archivo calib_right")
+    #np.savez("calib_right", intrinsic=intrinsics_right, extrinsic=extrinsics_right)
 
 # Carga las imagenes y devuelve una lista con arrays numpy
 # parametro: lista de nombres de las imagenes
