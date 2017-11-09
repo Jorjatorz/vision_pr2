@@ -151,6 +151,10 @@ def practica2():
     T[0, 3] = (cornersRealPositions[-1,0] - cornersRealPositions[0,0])/2.
     T[1, 3] = (cornersRealPositions[-1,1] - cornersRealPositions[0,1])/2.
     T[2, 3] = (cornersRealPositions[-1, 2] - cornersRealPositions[0, 2]) / 2.
+    '''
+    las tres ultimas lineas se pueden escribir como la siguiente, dejamos lo que te parezca mas legible
+    T[:3,3] = (cornersRealPositions[-1,:] - cornersRealPositions[0,:]) / 2.
+    '''
     # extrinsics empieza a indexar en la posicion 1, tiene None en la posicion 0
     extrinsics2 = [np.matmul(e, T) if e is not None else None for e in extrinsics]
     play_ar(intrinsics, extrinsics2, images, teapot)
