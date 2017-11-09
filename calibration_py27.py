@@ -174,6 +174,13 @@ def practica2():
     intrinsics_right, extrinsics_right, dist_coeffs_right = calibrate(boardCorners_right, cornersRealPositions_right, (320, 240))
     print("Guardando resultados de la calibracion en el archivo calib_right")
     #np.savez("calib_right", intrinsic=intrinsics_right, extrinsic=extrinsics_right)
+    
+    # Ejercicio 12
+    Ti=extrinsics[1]
+    Td = extrinsics_right[1]
+    pos=np.matmul(np.matmul(Ti,np.linalg.inv(Td)),np.array([0,0,0,1]).reshape((4,1)))
+    print("La posicion de la camara derecha en el sistema de referencia de la camara izquierda es ({},{},{})".format(pos[0,0],pos[1,0],pos[2,0]))
+    print("La distancia entre camaras es {} milimetros.".format(np.sqrt(np.sum(pos[:-1]**2))))
 
 # Carga las imagenes y devuelve una lista con arrays numpy
 # parametro: lista de nombres de las imagenes
@@ -209,32 +216,6 @@ def plothom(points):
     p = points / points[2,:]
     return ppl.plot(p[0,:], p[1,:], 'bo')
 
-
-def play_ar_modified(intrinsic, extrinsic, imgs, model):
-    fig = ppl.gcf()
-
-    v = model.vertices
-    e = model.edges
-
-    for T, img in zip(extrinsic, imgs):
-        fig.clf()
-
-        # Do not show invalid detections.
-        if T is None:
-            continue
-
-        # TODO: Project the model with proj.
-        # Hint: T is the extrinsic matrix for the current image.
-        m = proj(intrinsic, T, v)
-
-        # TODO: Draw the model with plothom or plotedges.
-        plothom(m)
-
-
-        # Plot the image.
-        imshow(img)
-        ppl.show()
-        time.sleep(0.1)
 
 if __name__ == "__main__":
     practica2()
