@@ -30,7 +30,6 @@ def play_ar(intrinsic, extrinsic, imgs, model):
         # TODO: Draw the model with plothom or plotedges.
         plothom(m)
 
-
         # Plot the image.
         imshow(img)
         ppl.show()
@@ -83,12 +82,11 @@ def calibrate(image_corners, chessboard_points, image_size):
 
     extrinsicsAux = map(vecs2matrices, zip(rvecs, tvecs))
 
-    extrinsicsiter=iter(extrinsicsAux)
+    extrinsicsiter = iter(extrinsicsAux)
     extrinsics = []
     for i, corner in enumerate(image_corners):
         if corner[0]:
             extrinsics.append(extrinsicsiter.next())
-            #extrinsics.append(next(extrinsicsAux))
         else:
             extrinsics.append(None)
 
@@ -98,8 +96,9 @@ def calibrate(image_corners, chessboard_points, image_size):
 # Codigo de la practica
 def practica2():
     # Ejercicio 1
+    print("\nInicio Ejercicio 1")
     print("Obteniendo nombres de las imagenes en la carpeta left")
-    #fileNames = glob.glob("left\left*.jpg")
+    # fileNames = glob.glob("left\left*.jpg") #windows
     fileNames = glob.glob("./left/left*.jpg")
     fileNames = misc.sort_nicely(fileNames)
 
@@ -107,59 +106,64 @@ def practica2():
     images = load_images(fileNames)
 
     # Ejercicio 2
+    print("\nInicio Ejercicio 2")
     print("Detectando esquinas del tablero en las imagenes")
     boardCorners = [cv2.findChessboardCorners(image, (8, 6)) for image in
                     images]  # Buscamos los bordes en todas las imagenes y los almacenamos en una lista
 
     # Ejercicio 3
+    print("\nInicio Ejercicio 3")
     print("Mostrando esquinas detectadas")
     imagesToShow = copy.deepcopy(images)
     for i in range(0, len(images)):
         if boardCorners[i][0]:  # Solo mostramos las imagenes con bordes detectados
             cv2.drawChessboardCorners(imagesToShow[i], (8, 6), boardCorners[i][1], boardCorners[i][0])
-            #cv2.imshow("img", imagesToShow[i])
-            #cv2.waitKey(500)
-            if i==1:
-                imshow(imagesToShow[i])
-                ppl.show()
-
+            imshow(imagesToShow[i])
+            ppl.show()
 
     # Ejercicio 4
+    print("\nInicio Ejercicio 4")
     print("Obeteniendo coordenadas en el mundo de las esquinas")
     cornersRealPositions = get_chessboard_points((8, 6), 30, 30)
 
     # Ejercicio 5
+    print("\nInicio Ejercicio 5")
     print("Calibrando camara left...")
     intrinsics, extrinsics, dist_coeffs = calibrate(boardCorners, cornersRealPositions, (320, 240))
     print("Guardando resultados de la calibracion en el archivo calib_left")
-    # np.savez("calib_left", intrinsic=intrinsics, extrinsic=extrinsics)
+    np.savez("calib_left", intrinsic=intrinsics, extrinsic=extrinsics)
 
     # Ejercicio 6
+    print("\nInicio Ejercicio 6")
     FOV_x = 2 * np.arctan(320 / (2 * intrinsics[0][0]))
     FOV_y = 2 * np.arctan(240 / (2 * intrinsics[1][1]))
     FOV_d = 2 * np.arctan2(np.sqrt(320 * 320 + 240 * 240) / 2, intrinsics[0][0])  # Se usa fx dado que es igual que fy
     print("FOV diagonal de la camara left (grados) = {}".format(FOV_d * 180 / np.pi))
 
     # Ejercicio 7,8,9
+    print("\nInicio Ejercicio 9")
     from models import teapot
+    from models import bunny
+    from models import cubo
     play_ar(intrinsics, extrinsics, images, teapot)
 
     # Ejercicio 10
+    print("\nInicio Ejercicio 10")
+    print("calculando la matriz de rotacion + traslacion...")
     T = np.zeros((4, 4))
     T[3][3] = 1
+    print("calculando la matriz de rotacion...")
     T[:-1, :-1] = misc.ang2rotmatrix(0, 0, np.pi / 2.)
-    T[0, 3] = (cornersRealPositions[-1,0] - cornersRealPositions[0,0])/2.
-    T[1, 3] = (cornersRealPositions[-1,1] - cornersRealPositions[0,1])/2.
-    T[2, 3] = (cornersRealPositions[-1, 2] - cornersRealPositions[0, 2]) / 2.
-    '''
-    las tres ultimas lineas se pueden escribir como la siguiente, dejamos lo que te parezca mas legible
-    T[:3,3] = (cornersRealPositions[-1,:] - cornersRealPositions[0,:]) / 2.
-    '''
-    # extrinsics empieza a indexar en la posicion 1, tiene None en la posicion 0
-    extrinsics2 = [np.matmul(e, T) if e is not None else None for e in extrinsics]
+    print("calculando el vector de traslacion...")
+    T[:3, 3] = (cornersRealPositions[-1, :] - cornersRealPositions[0, :]) / 2.
+    print("calculando los nuevos extrinsecos...")
+    extrinsics2 = [np.matmul(e, T) if e is not None else None for e in
+                   extrinsics]  # extrinsics empieza a indexar en la posicion 1, tiene None en la posicion 0
     play_ar(intrinsics, extrinsics2, images, teapot)
-    
+
     # Ejercicio 11
+    print("\nInicio Ejercicio 11")
+    print("repitiendo el proceso de calibracion completo para la camara derecha...")
     print("Obteniendo nombres de las imagenes en la carpeta right")
     fileNames = glob.glob("./right/*")
     fileNames = misc.sort_nicely(fileNames)
@@ -167,20 +171,24 @@ def practica2():
     images_right = load_images(fileNames)
     print("Detectando esquinas del tablero en las imagenes")
     boardCorners_right = [cv2.findChessboardCorners(image, (8, 6)) for image in
-                    images_right]  # Buscamos los bordes en todas las imagenes y los almacenamos en una lista
+                          images_right]  # Buscamos los bordes en todas las imagenes y los almacenamos en una lista
     print("Obeteniendo coordenadas en el mundo de las esquinas")
     cornersRealPositions_right = get_chessboard_points((8, 6), 30, 30)
     print("Calibrando camara right...")
-    intrinsics_right, extrinsics_right, dist_coeffs_right = calibrate(boardCorners_right, cornersRealPositions_right, (320, 240))
+    intrinsics_right, extrinsics_right, dist_coeffs_right = calibrate(boardCorners_right, cornersRealPositions_right,
+                                                                      (320, 240))
     print("Guardando resultados de la calibracion en el archivo calib_right")
-    #np.savez("calib_right", intrinsic=intrinsics_right, extrinsic=extrinsics_right)
-    
+    np.savez("calib_right", intrinsic=intrinsics_right, extrinsic=extrinsics_right)
+
     # Ejercicio 12
-    Ti=extrinsics[1]
+    print("\nInicio Ejercicio 12")
+    Ti = extrinsics[1]
     Td = extrinsics_right[1]
-    pos=np.matmul(np.matmul(Ti,np.linalg.inv(Td)),np.array([0,0,0,1]).reshape((4,1)))
-    print("La posicion de la camara derecha en el sistema de referencia de la camara izquierda es ({},{},{})".format(pos[0,0],pos[1,0],pos[2,0]))
-    print("La distancia entre camaras es {} milimetros.".format(np.sqrt(np.sum(pos[:-1]**2))))
+    pos = np.matmul(np.matmul(Ti, np.linalg.inv(Td)), np.array([0, 0, 0, 1]).reshape((4, 1)))
+    print("La posicion de la camara derecha en el sistema de referencia de la camara izquierda es ({},{},{})".format(
+        pos[0, 0], pos[1, 0], pos[2, 0]))
+    print("La distancia entre camaras es {} milimetros.".format(np.sqrt(np.sum(pos[:-1] ** 2))))
+
 
 # Carga las imagenes y devuelve una lista con arrays numpy
 # parametro: lista de nombres de las imagenes
@@ -213,8 +221,8 @@ def proj(K, T, verts):
 
 def plothom(points):
     # Transformamos de coordenadas homogeneas a castesianas y mostramos los puntos
-    p = points / points[2,:]
-    return ppl.plot(p[0,:], p[1,:], 'bo')
+    p = points / points[2, :]
+    return ppl.plot(p[0, :], p[1, :], 'bo')
 
 
 if __name__ == "__main__":
